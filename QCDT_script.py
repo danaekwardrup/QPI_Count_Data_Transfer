@@ -23,8 +23,28 @@ rp = connection.execute(s)
 #results = rp.fetchall()
 #print(results)
 
-for i in rp:
-    key = ': current'
-    if key in i[2].lower():
-        print(i[2])
+counter_current = 0
+counter_invalid = 0
+counter_incl = 0
+counter_excl = 0
+counter_excep = 0
 
+for i in rp:
+    if ': current' in i[2].lower():
+        counter_current += 1
+    if 'excl' in i[2].lower():
+        counter_excl += 1
+    if 'incl' in i[2].lower():
+        counter_incl += 1
+    if 'invalid' in i[2].lower():
+        counter_invalid += 1
+    if 'exception' in i[2].lower():
+        counter_excep += 1
+
+print(counter_current)
+print(counter_excl)
+print(counter_incl)
+print(counter_invalid)
+print(counter_excep)
+
+connection.close()
