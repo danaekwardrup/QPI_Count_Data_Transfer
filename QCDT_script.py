@@ -1,7 +1,9 @@
 #create the engine
 import pyodbc
+import pandas as pd
 from sqlalchemy import MetaData, create_engine, Table, Column, Unicode
 from sqlalchemy.sql import select
+
 metadata = MetaData()
 
 
