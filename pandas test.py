@@ -12,9 +12,8 @@ engine = create_engine('mssql+pyodbc://PEUser:peUSER@192.168.100.106:59647/Recom
 connection = engine.connect()
 metadata.create_all(engine)
 
-table_df = pd.read_sql(
-
-"SELECT * FROM Recommendations_P202009_final",
-con=engine
+table_df = pd.read_sql_query(
+"SELECT SUBSTRING(Patient, 1, 3) as ptgroup, ProtCode, Recommendation FROM Recommendations_P202009_final",
+con=engine,
 )
-print(table_df.info())
+print(table_df)
