@@ -3,12 +3,13 @@ import pyodbc
 import pandas as pd
 from sqlalchemy import MetaData, create_engine, Table, Column, Unicode
 from sqlalchemy.sql import select
-counter_current = 0
-counter_invalid = 0
-counter_incl = 0
-counter_excl = 0
-counter_excep = 0
 metadata = MetaData()
+ptgroup_array = None
+protcode_array = None
+rec_array = None
+org_id_list = []
+prot_list = []
+simp_rec_list = []
 
 
 engine = create_engine('mssql+pyodbc://PEUser:peUSER@192.168.100.106:59647/Recommendations_SBGS_YTD?driver=ODBC+Driver+17+for+SQL+Server')
@@ -21,31 +22,54 @@ table_df = pd.read_sql_query(
 con=engine
 )
 
+
+
+
+for org_id in table_df[['ptgroup']]:
+    org_id_obj = table_df[org_id]
+    ptgroup_array = org_id_obj.values
+    for id in ptgroup_array:
+        org_id_list.append(id)
+
+
+for prot in table_df[['ProtCode']]:
+    prot_obj = table_df[prot]
+    protcode_array = prot_obj.values
+    for prot_name in protcode_array:
+        prot_list.append(prot_name)
+
+
 for rec in table_df[['Recommendation']]:
     Rec_obj = table_df[rec]
     rec_array = Rec_obj.values
 
-for rec in rec_array:
-    if ': current' in rec.lower():
-        counter_current += 1
-    if 'excl' in rec.lower():
-        counter_excl += 1
-    if 'incl' in rec.lower():
-        counter_incl += 1
-    if 'invalid' in rec.lower():
-        counter_invalid += 1
-    if 'exception' in rec.lower():
-        counter_excep += 1
+    for rec in rec_array:
+        if ': current' in rec.lower():
+            rec = 'current'
+            simp_rec_list.append(rec)
 
-print(counter_current)
-print(counter_excl)
-print(counter_incl)
-print(counter_invalid)
-print(counter_excep)
+        elif 'excl' in rec.lower():
+            rec = 'excl'
+            simp_rec_list.append(rec)
 
+        elif 'incl' in rec.lower():
+            rec = 'incl'
+            simp_rec_list.append(rec)
 
+        elif 'invalid' in rec.lower():
+          rec = 'invalid'
+          simp_rec_list.append(rec)
+
+        elif 'exception' in rec.lower():
+          rec = 'exception'
+          simp_rec_list.append(rec)
+
+        else:
+          rec = 'other'
+          simp_rec_list.append(rec)
+
+print(len(org_id_list))
+print(len(prot_list))
+print(len(simp_rec_list))
 
 connection.close()
-
-#grouped_multiple = table_df.groupby(['ptgroup', 'ProtCode'])
-#print(grouped_multiple)
