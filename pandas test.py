@@ -68,8 +68,8 @@ for rec in table_df[['Recommendation']]:
           rec = 'other'
           simp_rec_list.append(rec)
 
-print(len(org_id_list))
-print(len(prot_list))
-print(len(simp_rec_list))
+table_list = list(zip(org_id_list, prot_list, simp_rec_list))
+three_column_df = pd.DataFrame(table_list, columns =['ptgroup', 'ProtCode', 'Recom'])
+print(three_column_df)
 
 connection.close()
