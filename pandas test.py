@@ -84,6 +84,12 @@ column_df['Exception'] = np.where(column_df['Recom'] == 'exception', 1, 0)
 
 totals_df = column_df.groupby(['ProtCode']).sum()
 
+totals_df['Performance Rate %'] = totals_df['Met']/(totals_df['Denominator']-totals_df['Exception'])
+
+totals_df['Performance Rate %'] = totals_df['Performance Rate %'].astype(float).map(lambda n: '{:.1%}'.format(n))
+
+print(totals_df)
+
 
 
 
