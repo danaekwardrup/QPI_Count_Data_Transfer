@@ -70,24 +70,26 @@ for rec in table_df[['Recommendation']]:
           simp_rec_list.append(rec)
 
 table_list = list(zip(org_id_list, prot_list, simp_rec_list))
-three_column_df = pd.DataFrame(table_list, columns =['ptgroup', 'ProtCode', 'Recom'])
+column_df = pd.DataFrame(table_list, columns =['ptgroup', 'ProtCode', 'Recom'])
 
-three_column_df['Met'] = np.where(three_column_df['Recom'] == 'current', 1, 0)
+column_df['Met'] = np.where(column_df['Recom'] == 'current', 1, 0)
 
-three_column_df['Not Met'] = np.where(three_column_df['Recom'] == 'invalid', 1, 0)
+column_df['Not Met'] = np.where(column_df['Recom'] == 'invalid', 1, 0)
 
-three_column_df['Denominator'] = np.where(three_column_df['Recom'] == 'incl', 1, 0)
+column_df['Denominator'] = np.where(column_df['Recom'] == 'incl', 1, 0)
 
-three_column_df['Exclusion'] = np.where(three_column_df['Recom'] == 'excl', 1, 0)
+column_df['Exclusion'] = np.where(column_df['Recom'] == 'excl', 1, 0)
 
-three_column_df['Exception'] = np.where(three_column_df['Recom'] == 'exception', 1, 0)
+column_df['Exception'] = np.where(column_df['Recom'] == 'exception', 1, 0)
 
-print(three_column_df)
-
-
+totals_df = column_df.groupby(['ProtCode']).sum()
 
 
 
-#plz = three_column_df.groupby(['ptgroup', 'ProtCode'])['Recom'].count()
+
+
+
+
+
 
 connection.close()
