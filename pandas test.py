@@ -13,13 +13,13 @@ prot_list = []
 simp_rec_list = []
 
 
-engine = create_engine('mssql+pyodbc://PEUser:peUSER@192.168.100.106:59647/Recommendations_SBGS_YTD?driver=ODBC+Driver+17+for+SQL+Server')
+engine = create_engine('mssql+pyodbc://PEUser:peUSER@192.168.100.106:59647/Recommendations_HEDIS_YTD?driver=ODBC+Driver+17+for+SQL+Server')
 #now that engine is initialized, let's open a connection to the database
 connection = engine.connect()
 metadata.create_all(engine)
 
 table_df = pd.read_sql_query(
-"SELECT SUBSTRING(Patient, 1, 3) as ptgroup, ProtCode, Recommendation FROM Recommendations_P202009_final",
+"SELECT SUBSTRING(Patient, 1, 3) as ptgroup, ProtCode, Recommendation FROM Recommendations_P202103_final",
 con=engine
 )
 
@@ -82,11 +82,14 @@ column_df['Exclusion'] = np.where(column_df['Recom'] == 'excl', 1, 0)
 
 column_df['Exception'] = np.where(column_df['Recom'] == 'exception', 1, 0)
 
-totals_df = column_df.groupby(['ProtCode']).sum()
+totals_df = column_df.groupby(['ptgroup', 'ProtCode']).sum()
 
 totals_df['Performance Rate %'] = totals_df['Met']/(totals_df['Denominator']-totals_df['Exception'])
 
+totals_df = totals_df.dropna(axis=0, how='any', subset=['Performance Rate %'])
+
 totals_df['Performance Rate %'] = totals_df['Performance Rate %'].astype(float).map(lambda n: '{:.1%}'.format(n))
+
 
 print(totals_df)
 
