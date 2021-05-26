@@ -19,7 +19,7 @@ engine = create_engine('mssql+pyodbc://PEUser:peUSER@192.168.100.106:59647/Recom
 connection = engine.connect()
 metadata.create_all(engine)
 
-for table in tables:
+for index, table in enumerate(tables):
     table_df = pd.read_sql_query(
     f"SELECT SUBSTRING(Patient, 1, 3) as ptgroup, ProtCode, Recommendation FROM {table}",
     con=engine
@@ -89,6 +89,16 @@ for table in tables:
 
     totals_df['Performance Rate %'] = totals_df['Performance Rate %'].astype(float).map(lambda n: '{:.1%}'.format(n))
 
+    if index == 0:
+        current_run_recs = totals_df
+    elif index == 1:
+        previous_run_recs = totals_df
+
+    print(table)
     print(totals_df)
 
-    connection.close()
+#create df for difference between 2 tables
+
+    #diff_df['ptgroup']=
+
+connection.close()
