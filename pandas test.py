@@ -11,6 +11,7 @@ rec_array = None
 org_id_list = []
 prot_list = []
 simp_rec_list = []
+prot_code_list = []
 
 tables = ["Recommendations_P202104_final", "Recommendations_P202103_final"]
 
@@ -69,24 +70,20 @@ for index, table in enumerate(tables):
               simp_rec_list.append(rec)
 
     table_list = list(zip(org_id_list, prot_list, simp_rec_list))
+
     column_df = pd.DataFrame(table_list, columns =['ptgroup', 'ProtCode', 'Recom'])
-
     column_df['Met'] = np.where(column_df['Recom'] == 'current', 1, 0)
-
     column_df['Not Met'] = np.where(column_df['Recom'] == 'invalid', 1, 0)
-
     column_df['Denominator'] = np.where(column_df['Recom'] == 'incl', 1, 0)
-
     column_df['Exclusion'] = np.where(column_df['Recom'] == 'excl', 1, 0)
-
     column_df['Exception'] = np.where(column_df['Recom'] == 'exception', 1, 0)
 
-    totals_df = column_df.groupby(['ptgroup', 'ProtCode']).sum()
+    totals_df = column_df.groupby(['ptgroup', 'ProtCode'], as_index=False).sum()
+    print(totals_df)
 
+    """
     totals_df['Performance Rate %'] = totals_df['Met']/(totals_df['Denominator']-totals_df['Exception'])
-
     totals_df = totals_df.dropna(axis=0, how='any', subset=['Performance Rate %'])
-
     totals_df['Performance Rate %'] = totals_df['Performance Rate %'].astype(float).map(lambda n: '{:.1%}'.format(n))
 
     if index == 0:
@@ -94,11 +91,24 @@ for index, table in enumerate(tables):
     elif index == 1:
         previous_run_recs = totals_df
 
-    print(table)
-    print(totals_df)
+    #print(table)
+    #print(totals_df)
 
 #create df for difference between 2 tables
 
-    #diff_df['ptgroup']=
+    #print(current_run_recs.columns)
 
+
+
+        if current_run_recs['ptgroup']==previous_run_recs['ptgroup'] \
+                and current_run_recs['ProtCode']==previous_run_recs['ProtCode']:
+            diff_df = current_run_recs['ptgroup', 'ProtCode']
+            diff_df['Met']= current_run_recs['Met']-previous_run_recs['Met']
+            diff_df['Not Met'] = current_run_recs['Not Met'] - previous_run_recs['Not Met']
+            diff_df['Denominator'] = current_run_recs['Denominator'] - previous_run_recs['Denominator']
+            diff_df['Exclusion'] = current_run_recs['Exclusion'] - previous_run_recs['Exclusion']
+            diff_df['Exception'] = current_run_recs['Exception'] - previous_run_recs['Exception']
+            diff_df['Performance Rate %'] = current_run_recs['Performance Rate %'] - previous_run_recs['Performance Rate %']
+    print(diff_df)
+"""
 connection.close()
