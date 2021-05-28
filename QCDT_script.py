@@ -90,22 +90,16 @@ for index, table in enumerate(tables):
         previous_run_recs = totals_df
 
 # create df for difference between 2 tables
+diff_df = current_run_recs[['ptgroup', 'ProtCode']].copy()
+
 for i in current_run_recs['ProtCode']:
     if current_run_recs['ptgroup'].equals(previous_run_recs['ptgroup']):
-
-        print(i)
-    else:
-        print('mismatch')
-
-"""
-
-        diff_df = current_run_recs['ptgroup', 'ProtCode']
         diff_df['Met']= current_run_recs['Met']-previous_run_recs['Met']
         diff_df['Not Met'] = current_run_recs['Not Met'] - previous_run_recs['Not Met']
         diff_df['Denominator'] = current_run_recs['Denominator'] - previous_run_recs['Denominator']
         diff_df['Exclusion'] = current_run_recs['Exclusion'] - previous_run_recs['Exclusion']
         diff_df['Exception'] = current_run_recs['Exception'] - previous_run_recs['Exception']
         diff_df['Performance Rate %'] = current_run_recs['Performance Rate %'] - previous_run_recs['Performance Rate %']
-        print(diff_df)
-"""
+print(diff_df)
+
 connection.close()
