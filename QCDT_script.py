@@ -82,7 +82,7 @@ for index, table in enumerate(tables):
 
     totals_df['Performance Rate %'] = totals_df['Met'] / (totals_df['Denominator'] - totals_df['Exception'])
     totals_df['Performance Rate %'] = totals_df['Performance Rate %'].fillna(0)
-    # totals_df['Performance Rate %'] = totals_df['Performance Rate %'].astype(float).map(lambda n: '{:.1%}'.format(n))
+
 
     if index == 0:
         current_run_recs = totals_df
@@ -100,6 +100,15 @@ for i in current_run_recs['ProtCode']:
         diff_df['Exclusion'] = current_run_recs['Exclusion'] - previous_run_recs['Exclusion']
         diff_df['Exception'] = current_run_recs['Exception'] - previous_run_recs['Exception']
         diff_df['Performance Rate %'] = current_run_recs['Performance Rate %'] - previous_run_recs['Performance Rate %']
+
+#change perf rate column to % for all three df's
+current_run_recs['Performance Rate %'] = current_run_recs['Performance Rate %'].astype(float).map(lambda n: '{:.1%}'.format(n))
+previous_run_recs['Performance Rate %'] = previous_run_recs['Performance Rate %'].astype(float).map(lambda n: '{:.1%}'.format(n))
+diff_df['Performance Rate %'] = diff_df['Performance Rate %'].astype(float).map(lambda n: '{:.1%}'.format(n))
+print(current_run_recs)
+print(previous_run_recs)
 print(diff_df)
+
+
 
 connection.close()
