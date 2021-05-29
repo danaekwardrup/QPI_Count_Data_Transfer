@@ -1,9 +1,8 @@
-# create the engine
-import pyodbc
+
 import pandas as pd
 import numpy as np
-from sqlalchemy import MetaData, create_engine, Table, Column, Unicode
-from sqlalchemy.sql import select
+from sqlalchemy import MetaData, create_engine
+import os
 
 metadata = MetaData()
 ptgroup_array = None
@@ -14,6 +13,11 @@ prot_list = []
 simp_rec_list = []
 prot_code_list = []
 
+
+
+
+
+#enter current run rec table, then previous run rec table that you wish to compare
 tables = ["Recommendations_P202104_final", "Recommendations_P202103_final"]
 
 engine = create_engine(
@@ -105,10 +109,20 @@ for i in current_run_recs['ProtCode']:
 current_run_recs['Performance Rate %'] = current_run_recs['Performance Rate %'].astype(float).map(lambda n: '{:.1%}'.format(n))
 previous_run_recs['Performance Rate %'] = previous_run_recs['Performance Rate %'].astype(float).map(lambda n: '{:.1%}'.format(n))
 diff_df['Performance Rate %'] = diff_df['Performance Rate %'].astype(float).map(lambda n: '{:.1%}'.format(n))
-print(current_run_recs)
-print(previous_run_recs)
-print(diff_df)
 
+#combine the three df's
+combined_df = pd.concat([current_run_recs,previous_run_recs,diff_df], axis=1)
+
+#insert empty columns
+combined_df.insert(8, '', '', allow_duplicates=True)
+combined_df.insert(17, '', '', allow_duplicates=True)
+
+
+desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
+
+file_path = os.path.join(desktop, "run_qa.xlsx")
+
+combined_df.to_excel(file_path, sheet_name='Sheet1')
 
 
 connection.close()
