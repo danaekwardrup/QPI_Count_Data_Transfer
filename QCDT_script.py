@@ -96,13 +96,15 @@ for index, table in enumerate(tables):
 current_run_recs["ProtCode"] = current_run_recs["ProtCode"].astype('string')
 previous_run_recs["ProtCode"] = previous_run_recs["ProtCode"].astype('string')
 
+prot_names_dict = {}
 for i in current_run_recs['ProtCode']:
     current_val = i
     for x in previous_run_recs['ProtCode']:
         prev_val = x
 
-        if current_val == prev_val:
-            print("Poophead")
+        if current_val in prev_val or prev_val in current_val:
+            prot_names_dict[current_val] = prev_val
+
 
 '''
 # create df for difference between 2 tables
