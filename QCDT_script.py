@@ -21,7 +21,7 @@ prot_code_list = []
 tables = ["Recommendations_P202104_final", "Recommendations_P202103_final"]
 
 engine = create_engine(
-    'mssql+pyodbc://PEUser:peUSER@192.168.100.106:59647/Recommendations_HEDIS_YTD?driver=ODBC+Driver+17+for+SQL+Server')
+    'mssql+pyodbc://PEUser:peUSER@192.168.100.106:59647/QCDT_HEDIS_YTD_Recs?driver=ODBC+Driver+17+for+SQL+Server')
 # now that engine is initialized, let's open a connection to the database
 connection = engine.connect()
 metadata.create_all(engine)
@@ -93,6 +93,18 @@ for index, table in enumerate(tables):
     elif index == 1:
         previous_run_recs = totals_df
 
+current_run_recs["ProtCode"] = current_run_recs["ProtCode"].astype('string')
+previous_run_recs["ProtCode"] = previous_run_recs["ProtCode"].astype('string')
+
+for i in current_run_recs['ProtCode']:
+    current_val = i
+    for x in previous_run_recs['ProtCode']:
+        prev_val = x
+
+        if current_val == prev_val:
+            print("Poophead")
+
+'''
 # create df for difference between 2 tables
 diff_df = current_run_recs[['ptgroup', 'ProtCode']].copy()
 
@@ -124,5 +136,5 @@ file_path = os.path.join(desktop, "run_qa.xlsx")
 
 combined_df.to_excel(file_path, sheet_name='Sheet1')
 
-
+'''
 connection.close()
