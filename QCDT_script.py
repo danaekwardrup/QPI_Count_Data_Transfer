@@ -13,10 +13,6 @@ prot_list = []
 simp_rec_list = []
 prot_code_list = []
 
-
-
-
-
 #enter current run rec table, then previous run rec table that you wish to compare
 tables = ["Recommendations_P202104_final", "Recommendations_P202103_final"]
 
@@ -26,9 +22,12 @@ engine = create_engine(
 connection = engine.connect()
 metadata.create_all(engine)
 
+#enumerate to allow for us to run current run rec table through the script and then prev run rec table
 for index, table in enumerate(tables):
     table_df = pd.read_sql_query(
-        f"SELECT SUBSTRING(Patient, 1, 3) as ptgroup, ProtCode, Recommendation FROM {table}",
+       f"SELECT TOP 5000 SUBSTRING(Patient, 1, 3) as ptgroup, ProtCode, Recommendation FROM {table} order by NEWID()",
+       #f"SELECT SUBSTRING(Patient, 1, 3) as ptgroup, ProtCode, Recommendation FROM {table}",
+
         con=engine
     )
 
@@ -83,49 +82,73 @@ for index, table in enumerate(tables):
     column_df['Exception'] = np.where(column_df['Recom'] == 'exception', 1, 0)
 
     totals_df = column_df.groupby(['ptgroup', 'ProtCode'], as_index=False).sum()
+    column_df = None
 
     totals_df['Performance Rate %'] = totals_df['Met'] / (totals_df['Denominator'] - totals_df['Exception'])
     totals_df['Performance Rate %'] = totals_df['Performance Rate %'].fillna(0)
 
-
     if index == 0:
-        current_run_recs = totals_df
+        current_run_recs = totals_df.copy()
+        totals_df.drop(['ptgroup', 'ProtCode','Met', 'Not Met','Denominator', 'Exclusion', 'Exception', 'Performance Rate %'],\
+        axis=1,inplace=True)
     elif index == 1:
         previous_run_recs = totals_df
 
-current_run_recs["ProtCode"] = current_run_recs["ProtCode"].astype('string')
-previous_run_recs["ProtCode"] = previous_run_recs["ProtCode"].astype('string')
+
+"""
+current_run_recs['ProtCode'] = current_run_recs['ProtCode'].astype('string')
+previous_run_recs['ProtCode'] = previous_run_recs['ProtCode'].astype('string')
+current_run_recs['ptgroup'] = current_run_recs['ptgroup'].astype('string')
+previous_run_recs['ptgroup'] = previous_run_recs['ptgroup'].astype('string')
+
 
 prot_names_dict = {}
-for i in current_run_recs['ProtCode']:
+for index_a, i in enumerate(current_run_recs['ProtCode']):
+    curr_pg = current_run_recs['ptgroup'][index_a]
     current_val = i
-    for x in previous_run_recs['ProtCode']:
+    new_prot = True
+    for index_b, x in enumerate(previous_run_recs['ProtCode']):
+        prev_pg = previous_run_recs['ptgroup'][index_b]
         prev_val = x
+        if curr_pg == prev_pg:
+            if current_val in prev_val or prev_val in current_val:
+                new_prot = False
+                prot_names_dict[current_val] = (prev_val, new_prot)
 
-        if current_val in prev_val or prev_val in current_val:
-            prot_names_dict[current_val] = prev_val
+    if new_prot:
+        print(f"NEW PROT: {current_val}")
+        prot_names_dict[current_val] = ("UNMATCHED", new_prot)
 
+prot_names_list = prot_names_dict.values()
+prev_prot_names_list = []
 
-'''
+for i in prot_names_list:
+    prev_prot_names_list.append(i[0])
+
+previous_run_recs = previous_run_recs[previous_run_recs.ProtCode.isin(prev_prot_names_list)]
+
 # create df for difference between 2 tables
 diff_df = current_run_recs[['ptgroup', 'ProtCode']].copy()
 
 for i in current_run_recs['ProtCode']:
     if current_run_recs['ptgroup'].equals(previous_run_recs['ptgroup']):
-        diff_df['Met']= current_run_recs['Met']-previous_run_recs['Met']
+        diff_df['Met']= current_run_recs['Met'] - previous_run_recs['Met']
         diff_df['Not Met'] = current_run_recs['Not Met'] - previous_run_recs['Not Met']
         diff_df['Denominator'] = current_run_recs['Denominator'] - previous_run_recs['Denominator']
         diff_df['Exclusion'] = current_run_recs['Exclusion'] - previous_run_recs['Exclusion']
         diff_df['Exception'] = current_run_recs['Exception'] - previous_run_recs['Exception']
         diff_df['Performance Rate %'] = current_run_recs['Performance Rate %'] - previous_run_recs['Performance Rate %']
 
+
 #change perf rate column to % for all three df's
+
 current_run_recs['Performance Rate %'] = current_run_recs['Performance Rate %'].astype(float).map(lambda n: '{:.1%}'.format(n))
 previous_run_recs['Performance Rate %'] = previous_run_recs['Performance Rate %'].astype(float).map(lambda n: '{:.1%}'.format(n))
-diff_df['Performance Rate %'] = diff_df['Performance Rate %'].astype(float).map(lambda n: '{:.1%}'.format(n))
+#diff_df['Performance Rate %'] = diff_df['Performance Rate %'].astype(float).map(lambda n: '{:.1%}'.format(n))
+
 
 #combine the three df's
-combined_df = pd.concat([current_run_recs,previous_run_recs,diff_df], axis=1)
+combined_df = pd.concat([current_run_recs,previous_run_recs], axis=1)
 
 #insert empty columns
 combined_df.insert(8, '', '', allow_duplicates=True)
@@ -138,5 +161,5 @@ file_path = os.path.join(desktop, "run_qa.xlsx")
 
 combined_df.to_excel(file_path, sheet_name='Sheet1')
 
-'''
+"""
 connection.close()
