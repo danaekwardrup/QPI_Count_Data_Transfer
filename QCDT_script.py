@@ -8,10 +8,7 @@ metadata = MetaData()
 ptgroup_array = None
 protcode_array = None
 rec_array = None
-org_id_list = []
-prot_list = []
-simp_rec_list = []
-prot_code_list = []
+
 
 #enter current run rec table, then previous run rec table that you wish to compare
 tables = ["Recommendations_P202104_final", "Recommendations_P202103_final"]
@@ -24,9 +21,13 @@ metadata.create_all(engine)
 
 #enumerate to allow for us to run current run rec table through the script and then prev run rec table
 for index, table in enumerate(tables):
+    simp_rec_list = []
+    org_id_list = []
+    prot_list = []
+    prot_code_list = []
     table_df = pd.read_sql_query(
-       f"SELECT TOP 5000 SUBSTRING(Patient, 1, 3) as ptgroup, ProtCode, Recommendation FROM {table} order by NEWID()",
-       #f"SELECT SUBSTRING(Patient, 1, 3) as ptgroup, ProtCode, Recommendation FROM {table}",
+       #f"SELECT TOP 5000 SUBSTRING(Patient, 1, 3) as ptgroup, ProtCode, Recommendation FROM {table} order by NEWID()",
+       f"SELECT SUBSTRING(Patient, 1, 3) as ptgroup, ProtCode, Recommendation FROM {table}",
 
         con=engine
     )
@@ -94,7 +95,6 @@ for index, table in enumerate(tables):
     elif index == 1:
         previous_run_recs = totals_df
 
-
 """
 current_run_recs['ProtCode'] = current_run_recs['ProtCode'].astype('string')
 previous_run_recs['ProtCode'] = previous_run_recs['ProtCode'].astype('string')
@@ -138,7 +138,7 @@ for i in current_run_recs['ProtCode']:
         diff_df['Exclusion'] = current_run_recs['Exclusion'] - previous_run_recs['Exclusion']
         diff_df['Exception'] = current_run_recs['Exception'] - previous_run_recs['Exception']
         diff_df['Performance Rate %'] = current_run_recs['Performance Rate %'] - previous_run_recs['Performance Rate %']
-
+"""
 
 #change perf rate column to % for all three df's
 
@@ -152,7 +152,7 @@ combined_df = pd.concat([current_run_recs,previous_run_recs], axis=1)
 
 #insert empty columns
 combined_df.insert(8, '', '', allow_duplicates=True)
-combined_df.insert(17, '', '', allow_duplicates=True)
+#combined_df.insert(17, '', '', allow_duplicates=True)
 
 
 desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
@@ -161,5 +161,5 @@ file_path = os.path.join(desktop, "run_qa.xlsx")
 
 combined_df.to_excel(file_path, sheet_name='Sheet1')
 
-"""
+
 connection.close()
