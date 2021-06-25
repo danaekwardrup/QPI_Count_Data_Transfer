@@ -88,6 +88,8 @@ for index, table in enumerate(tables):
     totals_df['Performance Rate %'] = totals_df['Met'] / (totals_df['Denominator'] - totals_df['Exception'])
     totals_df['Performance Rate %'] = totals_df['Performance Rate %'].fillna(0)
 
+
+
     if index == 0:
         current_run_recs = totals_df.copy()
         totals_df.drop(['ptgroup', 'ProtCode','Met', 'Not Met','Denominator', 'Exclusion', 'Exception', 'Performance Rate %'],\
@@ -140,12 +142,38 @@ for i in current_run_recs['ProtCode']:
         diff_df['Performance Rate %'] = current_run_recs['Performance Rate %'] - previous_run_recs['Performance Rate %']
 """
 
+
+
+
+
+
+
+
+index_names_current = current_run_recs[(current_run_recs['Denominator'] == 0)\
+    & (current_run_recs['Exclusion'] == 0)].index
+current_run_recs.drop(index_names_current, inplace=True)
+current_run_recs.reset_index(inplace=True)
+current_run_recs.drop(['index'], axis=1, inplace=True)
+
+
+index_names_prev = previous_run_recs[(previous_run_recs['Denominator'] == 0)\
+    & (previous_run_recs['Exclusion'] == 0)].index
+previous_run_recs.drop(index_names_prev, inplace=True)
+previous_run_recs.reset_index(inplace=True)
+previous_run_recs.drop(['index'], axis=1, inplace=True)
+
+
+
+"""
+
+
 #change perf rate column to % for all three df's
 
 current_run_recs['Performance Rate %'] = current_run_recs['Performance Rate %'].astype(float).map(lambda n: '{:.1%}'.format(n))
 previous_run_recs['Performance Rate %'] = previous_run_recs['Performance Rate %'].astype(float).map(lambda n: '{:.1%}'.format(n))
 #diff_df['Performance Rate %'] = diff_df['Performance Rate %'].astype(float).map(lambda n: '{:.1%}'.format(n))
 
+"""
 
 #combine the three df's
 combined_df = pd.concat([current_run_recs,previous_run_recs], axis=1)
