@@ -10,10 +10,10 @@ rec_array = None
 
 
 #enter current run rec table, then previous run rec table that you wish to compare
-tables = ["Recommendations_P202105", "Recommendations_P202104"]
+tables = ["table1", "table2"]
 
 engine = create_engine(
-    'mssql+pyodbc://PEUser:peUSER@192.168.100.106:59647/Recommendations_NextGen_YTD?driver=ODBC+Driver+17+for+SQL+Server')
+    'mssql+pyodbc://Username:Pw@hostname:port/dbname?driver=ODBC+Driver+17+for+SQL+Server')
 # now that engine is initialized, let's open a connection to the database
 connection = engine.connect()
 metadata.create_all(engine)
